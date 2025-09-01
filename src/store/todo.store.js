@@ -1,28 +1,33 @@
 import { Todo } from "../todos/models/todo.model"
 
-const Filter = {
+export const Filter = {
     All: 'all',
     Completed: 'Completed',
     Pending: 'Pending'
 }
 
 const state = {
-    todos: [
-        new Todo('Piedra del alma'),
-        new Todo('Piedra del infinito'),
-        new Todo('Piedra del tiempo'),
-    ],
+    todos: [],
     filter: Filter.All,
 }
 
 const initStore = () => {
-    console.log(state)
-  console.log('init store 🍏')
+    loadStore()
+    console.log('init store 🍏')
 }
 
 
 const loadStore = () => {
-    throw new Error('no implementado');
+    if( !localStorage.getItem('state') ) return;
+    const { todos = [], filter = Filter.All } = JSON.parse(localStorage.getItem('state'))
+    state.todos = todos;
+    state.filter = filter
+}
+
+
+const saveStateToLocalStorage = () => {
+    
+    localStorage.setItem('state', JSON.stringify(state))
 }
 
 ///// Funcionalidades básicas del TODO ///////////
@@ -51,6 +56,8 @@ const addTodo = ( description ) => {
     if( !description) throw new Error('description is required');
 
     state.todos.push( new Todo(description))
+
+    saveStateToLocalStorage()
 }
 
 /**
@@ -66,18 +73,23 @@ const toggleTodo = ( todoId ) => {
         return todo;
     });
 
+    saveStateToLocalStorage()
+
 }
 
 const deleteTodo = ( todoId ) => {
     state.todos = state.todos.filter(todo => todo.id !== todoId)
+    saveStateToLocalStorage()
 }
 
 const deleteCompleted = () => {
-    state.todos = state.filter(todo => todo.done )
+    state.todos = state.todos.filter(todo => !todo.done )
+    saveStateToLocalStorage()
 }
 
 const setFilter = ( newFilter = Filter.All ) => {
     state.filter = newFilter;
+    saveStateToLocalStorage()
 }
 
 const getCurrentFilter = () => {
